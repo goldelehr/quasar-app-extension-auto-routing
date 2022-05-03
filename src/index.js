@@ -17,24 +17,25 @@ module.exports = function (api) {
   const routePrefix = api.prompts.routePrefix
 
   // ensure the destination and its files exist
-  if(!fs.existsSync(outDir)) {
+  if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir)
   }
 
-  const autoRouteWatcher = chokidar.watch(
-    pagesDir,
-    { ignored: ignorePattern } // ignore dotfiles
-  )
+  if (api.ctx.dev) {
+    const autoRouteWatcher = chokidar.watch(
+      pagesDir,
+      { ignored: ignorePattern } // ignore dotfiles
+    )
+    autoRouteWatcher
+      .on('add', () => writeRoutesFile())
+      .on('unlink', () => writeRoutesFile())
+  }
 
   createIndexTemplate(routePrefix, layoutsDir, indexFile)
 
   writeRoutesFile()
 
-  autoRouteWatcher
-    .on('add', () => writeRoutesFile())
-    .on('unlink', () => writeRoutesFile())
-
-  function writeRoutesFile () {
+  function writeRoutesFile() {
     let code = generateRoutes({
       pages: pagesDir,
       importPrefix: pagesImportPrefix,
@@ -42,18 +43,18 @@ module.exports = function (api) {
     })
 
     code = "/* eslint-disable */\n" + code
-  
-    if(!fs.existsSync(generatedRoutesFile)) {
+
+    if (!fs.existsSync(generatedRoutesFile)) {
       fs.writeFileSync(generatedRoutesFile, '')
     }
-  
+
     if (
       fs.existsSync(generatedRoutesFile) &&
       fs.readFileSync(generatedRoutesFile, 'utf8').trim() === code.trim()
     ) {
       return
     }
-  
+
     fs.writeFileSync(generatedRoutesFile, code)
   }
 }
