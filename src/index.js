@@ -6,7 +6,7 @@ const createIndexTemplate = require('./createIndexTemplate')
 
 module.exports = function (api) {
   const pagesDir = api.resolve.app(api.prompts.pagesDir)
-  const layoutsDir = api.resolve.app(api.prompts.layoutsDir)
+  const layoutsDir = api.prompts.layoutsDir
   const outDir = api.resolve.app(api.prompts.layoutsDir)
   const generatedRoutesFile = api.resolve.app(api.prompts.outDir + '/generated-routes.js')
   const indexFile = api.resolve.app(api.prompts.outDir + '/index.js')
